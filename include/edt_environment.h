@@ -1,7 +1,7 @@
 #ifndef _EDT_ENVIRONMENT_H_
 #define _EDT_ENVIRONMENT_H_
 
-#include <Eigen/Eigen>
+#include <Eigen/Eigen.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <iostream>
 #include <ros/ros.h>
