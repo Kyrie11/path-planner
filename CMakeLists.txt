@@ -67,13 +67,18 @@ endif(NOT OMPL_FOUND)
 find_package(Eigen3 REQUIRED)
 
 ## Declare a catkin package
-catkin_package()
+catkin_package(
+ INCLUDE_DIRS include
+ LIBRARIES hybrid_astar
+ CATKIN_DEPENDS roscpp std_msgs
+)
 
 ## OPEN MOTION PLANNING LIBRARY
 
 
 include_directories(
     SYSTEM
+    include
     ${catkin_INCLUDE_DIRS}
     ${OMPL_INCLUDE_DIRS}
     ${Eigen3_INCLUDE_DIRS}
