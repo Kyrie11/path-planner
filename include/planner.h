@@ -61,7 +61,7 @@ class Planner {
   /*!
      \brief The central function entry point making the necessary preparations to start the planning.
   */
-  void plan(ros::NodeHandle& nh);
+  void plan();
 
  private:
   
