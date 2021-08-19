@@ -1,4 +1,4 @@
-#include "planner.h"
+#include "../include/planner.h"
 
 using namespace HybridAStar;
 //###################################################
