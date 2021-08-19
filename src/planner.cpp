@@ -4,7 +4,7 @@ using namespace HybridAStar;
 //###################################################
 //                                        CONSTRUCTOR
 //###################################################
-Planner::Planner(ros::NodeHandle& nh) {
+Planner::Planner() {
   // _____
   // TODOS
   //    initializeLookups();
