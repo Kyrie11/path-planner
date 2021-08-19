@@ -1,4 +1,4 @@
-#include "bucketedqueue.h"
+#include "../include/bucketedqueue.h"
 
 #include "limits.h"
 #include <stdio.h>
