@@ -1,4 +1,4 @@
-#include "node2d.h"
+#include "../include/node2d.h"
 
 using namespace HybridAStar;
 

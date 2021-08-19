@@ -13,8 +13,8 @@
 #include <iostream>
 #include <ros/ros.h>
 
-#include "constants.h"
-#include "planner.h"
+#include "../include/constants.h"
+#include "../include/planner.h"
 
 //###################################################
 //                              COUT STANDARD MESSAGE

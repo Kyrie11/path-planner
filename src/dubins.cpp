@@ -21,7 +21,7 @@
 #ifndef DUBINS_CPP
 #define DUBINS_CPP
 
-#include "dubins.h"
+#include "../include/dubins.h"
 #define _USE_MATH_DEFINES // for C++
 #include <math.h>
 #include <assert.h>

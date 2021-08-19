@@ -1,4 +1,4 @@
-#include "path.h"
+#include "../include/path.h"
 
 using namespace HybridAStar;
 

@@ -1,4 +1,4 @@
-#include "node3d.h"
+#include "../include/node3d.h"
 
 using namespace HybridAStar;
 
