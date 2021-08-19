@@ -20,7 +20,7 @@
 #include "smoother.h"
 #include "visualize.h"
 #include "lookup.h"
-#include "planner_manager.h"
+
 
 namespace HybridAStar {
 /*!
@@ -64,7 +64,6 @@ class Planner {
   void plan(ros::NodeHandle& nh);
 
  private:
-  FastPlannerManager::Ptr planner_manager_;
   
   /// The node handle
   ros::NodeHandle n;
