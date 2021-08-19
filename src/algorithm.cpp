@@ -1,4 +1,4 @@
-#include "algorithm.h"
+#include "include/algorithm.h"
 
 #include <boost/heap/binomial_heap.hpp>
 
