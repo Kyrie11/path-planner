@@ -1,4 +1,4 @@
-#include "smoother.h"
+#include "../include/smoother.h"
 using namespace HybridAStar;
 //###################################################
 //                                     CUSP DETECTION

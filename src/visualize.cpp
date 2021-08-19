@@ -1,4 +1,4 @@
-#include "visualize.h"
+#include "../include/visualize.h"
 using namespace HybridAStar;
 //###################################################
 //                                CLEAR VISUALIZATION
