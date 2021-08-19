@@ -17,8 +17,6 @@ Planner::Planner() {
   pubStart = n.advertise<geometry_msgs::PoseStamped>("/move_base_simple/start", 1);
   grid = boost::make_shared<nav_msgs::OccupancyGrid>();
 
-  planner_manager_.reset(new FastPlannerManager);
-  planner_manager_->initPlanModules(nh);
   
   // ___________________
   // TOPICS TO SUBSCRIBE
