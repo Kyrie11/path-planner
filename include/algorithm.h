@@ -1,10 +1,15 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
+#include <cmath>
+
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 #include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/base/spaces/SE2StateSpace.h>
 #include <ompl/base/State.h>
+
+#include <nav_msgs/Odometry.h>
+#include <quadrotor_msgs/PositionCommand.h>
 
 typedef ompl::base::SE2StateSpace::StateType State;
 
@@ -24,7 +29,14 @@ class Visualize;
 class Algorithm {
  public:
   /// The deault constructor
-  Algorithm() {}
+  Algorithm();
+  Algorithm(ros::NodeHandle& nh);
+/*   {
+  ros::NodeHandle& n;
+  odomSub = n.subscribe("/camera/odom/sample", 10, &Algorithm::odomCallback, this);
+  pubPositionCmd = n.advertise<quadrotor_msgs::PositionCommand>("/planning/pos_cmd", 10);
+  
+}*/
 
   // HYBRID A* ALGORITHM
   /*!
@@ -41,7 +53,7 @@ class Algorithm {
      \param visualization the visualization object publishing the search to RViz
      \return the pointer to the node satisfying the goal condition
   */
-  static Node3D* hybridAStar(Node3D& start,
+   Node3D* hybridAStar(Node3D& start,
                              const Node3D& goal,
                              Node3D* nodes3D,
                              Node2D* nodes2D,
@@ -51,6 +63,14 @@ class Algorithm {
                              float* dubinsLookup,
                              Visualize& visualization);
 
+
+  private:
+    void odomCallback(const nav_msgs::Odometry::ConstPtr& msg);
+    void updateH(Node3D& start, const Node3D& goal, Node2D* nodes2D, float* dubinsLookup, int width, int height, CollisionDetection& configurationSpace, Visualize& visualization);
+    Node3D* dubinsShot(Node3D& start, const Node3D& goal, CollisionDetection& configurationSpace);
+    nav_msgs::Odometry odom;
+    ros::NodeHandle n;
+    double turn_radius;
 };
 }
 #endif // ALGORITHM_H

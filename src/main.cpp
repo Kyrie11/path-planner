@@ -55,8 +55,9 @@ int main(int argc, char** argv) {
   }
 
   ros::init(argc, argv, "a_star");
+  ros::NodeHandle n;
   ros::NodeHandle nh("~");
-  HybridAStar::Planner hy;
+  HybridAStar::Planner hy(nh);
   hy.plan(); 
 
   ros::spin();

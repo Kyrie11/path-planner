@@ -4,7 +4,9 @@ using namespace HybridAStar;
 //###################################################
 //                                        CONSTRUCTOR
 //###################################################
-Planner::Planner() {
+Planner::Planner(ros::NodeHandle& nh) {
+  n = nh;
+//  algorithm = Algorithm(nh);
   // _____
   // TODOS
   //    initializeLookups();
@@ -16,7 +18,7 @@ Planner::Planner() {
   // TOPICS TO PUBLISH
   pubStart = n.advertise<geometry_msgs::PoseStamped>("/move_base_simple/start", 1);
   grid = boost::make_shared<nav_msgs::OccupancyGrid>();
-
+  
   
   // ___________________
   // TOPICS TO SUBSCRIBE
@@ -76,7 +78,7 @@ void Planner::setMap(const nav_msgs::OccupancyGrid::Ptr map) {
 
   voronoiDiagram.initializeMap(mapWidth, mapHeight, binMap);
   voronoiDiagram.update();
-  voronoiDiagram.visualize("/home/coola/result.pgm");
+  voronoiDiagram.visualize("/home/dji/result.pgm");
 //  ros::Time t1 = ros::Time::now();
 //  ros::Duration d(t1 - t0);
 //  std::cout << "created Voronoi Diagram in ms: " << d * 1000 << std::endl;
@@ -162,7 +164,8 @@ void Planner::setGoal(const geometry_msgs::PoseStamped::ConstPtr& end) {
 //###################################################
 //                                      PLAN THE PATH
 //###################################################
-void Planner::plan() {
+void Planner::plan(){
+  
   // if a start as well as goal are defined go ahead and plan
   if (validStart && validGoal) {
 
@@ -210,8 +213,9 @@ void Planner::plan() {
     // CLEAR THE PATH
     path.clear();
     smoothedPath.clear();
+    Algorithm algorithm(n);
     // FIND THE PATH
-    Node3D* nSolution = Algorithm::hybridAStar(nStart, nGoal, nodes3D, nodes2D, mapWidth, mapHeight, configurationSpace, dubinsLookup, visualization);
+    Node3D* nSolution = algorithm.hybridAStar(nStart, nGoal, nodes3D, nodes2D, mapWidth, mapHeight, configurationSpace, dubinsLookup, visualization);
     // std::cout<<"\n nSolution:"<<nSolution<<std::endl;
     // TRACE THE PATH
     smoother.tracePath(nSolution, originX, originY);

@@ -64,7 +64,7 @@ static const double width = 1.75 + 2 * bloating;
 /// [m] --- The length of the vehicle
 static const double length = 2.65 + 2 * bloating;
 /// [m] --- The minimum turning radius of the vehicle
-static const float r = 0.5;
+static const float r = 0.01;
 /// [m] --- The number of discretizations in heading
 static const int headings = 72;
 /// [°] --- The discretization value of the heading (goal condition)
@@ -91,7 +91,7 @@ static const float tieBreaker = 0.01;
 /// [#] --- A factor to ensure admissibility of the holonomic with obstacles heuristic
 static const float factor2D = sqrt(5) / sqrt(2) + 1;
 /// [#] --- A movement cost penalty for turning (choosing non straight motion primitives)
-static const float penaltyTurning = 1.05;
+static const float penaltyTurning = 0.5;
 /// [#] --- A movement cost penalty for reversing (choosing motion primitives > 2)
 static const float penaltyReversing = 2.0;
 /// [#] --- A movement cost penalty for change of direction (changing from primitives < 3 to primitives > 2)
@@ -117,7 +117,7 @@ static const int dubinsArea = dubinsWidth * dubinsWidth;
 /// [m] -- The bounding box size length and width to precompute all possible headings
 static const int bbSize = std::ceil((sqrt(width * width + length* length) + 4) / cellSize);
 /// [#] --- The sqrt of the number of discrete positions per cell
-static const int positionResolution = 10;
+static const int positionResolution = 1;
 /// [#] --- The number of discrete positions per cell
 static const int positions = positionResolution * positionResolution;
 /// A structure describing the relative position of the occupied cell based on the center of the vehicle

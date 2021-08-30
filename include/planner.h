@@ -33,7 +33,7 @@ class Planner {
  public:
   /// The default constructor
   Planner();
-
+  Planner(ros::NodeHandle& nh);
   /*!
      \brief Initializes the collision as well as heuristic lookup table
      \todo probably removed
@@ -64,7 +64,7 @@ class Planner {
   void plan();
 
  private:
-  
+  Algorithm algorithm;  
   /// The node handle
   ros::NodeHandle n;
   /// A publisher publishing the start position for RViz
@@ -98,6 +98,8 @@ class Planner {
   /// The goal pose set through RViz
   geometry_msgs::PoseStamped goal;
   nav_msgs::OccupancyGrid::Ptr grid;
+
+  
 
   int mapHeight, mapWidth;
   float originX, originY;

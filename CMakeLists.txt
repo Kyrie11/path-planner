@@ -55,9 +55,10 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     rospy
     std_msgs
+    quadrotor_msgs
     tf
     )
-
+find_package(Eigen3 REQUIRED)
 find_package(ompl REQUIRED)
 
 if(NOT OMPL_FOUND)
@@ -74,7 +75,7 @@ catkin_package(
 )
 
 ## OPEN MOTION PLANNING LIBRARY
-
+include_directories("/usr/include/eigen3")
 
 include_directories(
     SYSTEM

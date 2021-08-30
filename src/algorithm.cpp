@@ -1,6 +1,6 @@
 #include "../include/algorithm.h"
-
-
+#include <Eigen/Core>
+#include <Eigen/StdVector>
 #include <boost/heap/binomial_heap.hpp>
 
 using namespace HybridAStar;
@@ -8,9 +8,8 @@ using namespace HybridAStar;
 float aStar(Node2D& start, Node2D& goal, Node2D* nodes2D, int width, int height, CollisionDetection& configurationSpace, Visualize& visualization);
 void updateH(Node3D& start, const Node3D& goal, Node2D* nodes2D, float* dubinsLookup, int width, int height, CollisionDetection& configurationSpace, Visualize& visualization);
 Node3D* dubinsShot(Node3D& start, const Node3D& goal, CollisionDetection& configurationSpace);
-
-//###################################################
-//                                    NODE COMPARISON
+Eigen::Vector3d calcVelocity(nav_msgs::Odometry currentPosition, Node3D* predPosition);
+void odomCallback1(nav_msgs::OdometryConstPtr& ptr) {}
 //###################################################
 /*!
    \brief A structure to sort nodes in a heap structure
@@ -25,7 +24,16 @@ struct CompareNodes {
     return lhs->getC() > rhs->getC();
   }
 };
-
+Algorithm::Algorithm(){}
+Algorithm::Algorithm(ros::NodeHandle& nh) 
+{
+ n = nh;
+ n.param("/hybrid_astar/turn_radius", turn_radius, 0.5);
+ std::cout<<"转弯半径:"<<turn_radius;
+ // odomSub = n.subscribe("/camera/odom/sample", 10, &Algorithm::odomCallback, this);
+ // pubPositionCmd = n.advertise<quadrotor_msgs::PositionCommand>("/planning/pos_cmd", 10);
+  
+}
 //###################################################
 //                                        3D A*
 //###################################################
@@ -38,7 +46,15 @@ Node3D* Algorithm::hybridAStar(Node3D& start,
                                CollisionDetection& configurationSpace,
                                float* dubinsLookup,
                                Visualize& visualization) {
+   
+ // ros::Subscriber odomSub = n.subscribe("/camera/odom/sample", 10, &odomCallback);
+  ros::Subscriber odomSub = n.subscribe("odom", 10, &Algorithm::odomCallback, this/*, ros::TransportHints().tcpNoDelay()*/);
+  ros::Publisher posCmdPub = n.advertise<quadrotor_msgs::PositionCommand>("posCmd", 10);
 
+  quadrotor_msgs::PositionCommand positionCmd;
+
+  Eigen::Vector3d velocity;
+  
   // PREDECESSOR AND SUCCESSOR INDEX
   int iPred, iSucc;
   float newG;
@@ -79,6 +95,16 @@ Node3D* Algorithm::hybridAStar(Node3D& start,
     iPred = nPred->setIdx(width, height);
     iterations++;
     std::cout<<"itertions:"<<iterations<<std::endl;
+    positionCmd.header.stamp = ros::Time::now();
+    positionCmd.header.frame_id = "world";
+    positionCmd.position.x = nPred->getX();
+    positionCmd.position.y = nPred->getY();
+    positionCmd.position.z = odom.pose.pose.position.z;
+    velocity = calcVelocity(odom, nPred);
+    positionCmd.velocity.x = velocity(0);
+    positionCmd.velocity.y = velocity(1);
+    positionCmd.velocity.z = velocity(2);
+    posCmdPub.publish(positionCmd);
 
     // RViz visualization
     if (Constants::visualization) {
@@ -109,6 +135,16 @@ Node3D* Algorithm::hybridAStar(Node3D& start,
       // GOAL TEST
       if (*nPred == goal || iterations > Constants::iterations) {
         // DEBUG
+       /* positionCmd->header.stamp = ros::Time::now();
+        positionCmd->header.frame_id = "world";
+        positionCmd->position.x = nPred->getX();
+        positionCmd->position.y = nPred->getY();
+        positionCmd->position.z = 0;
+        velocity = calcVelocity(this->odom, nPred);
+        positionCmd->velocity.x = velocity(0);
+        positionCmd->velocity.y = velocity(1);
+        positionCmd->velocity.z = velocity(2);
+        pubPosition.publish(positionCmd);*/
         std::cout<<"iterations:"<<iterations<<std::endl;
         return nPred;
       }
@@ -125,6 +161,19 @@ Node3D* Algorithm::hybridAStar(Node3D& start,
           if (nSucc != nullptr && *nSucc == goal) {
             //DEBUG
             // std::cout << "max diff " << max << std::endl;
+      /*   positionCmd->header.stamp = ros::Time::now();
+        positionCmd->header.frame_id = "world";
+        positionCmd->position.x = nPred->getX();
+        positionCmd->position.y = nPred->getY();
+        positionCmd->position.z = 0;
+        velocity = calcVelocity(this->odom, nPred);
+        positionCmd->velocity.x = velocity(0);
+        positionCmd->velocity.y = velocity(1);
+        positionCmd->velocity.z = velocity(2);
+        pubPosition.publish(positionCmd);*/
+        std::cout<<"iterations:"<<iterations<<std::endl;
+   
+        // DEBUG
             return nSucc;
           }
         }
@@ -187,6 +236,11 @@ Node3D* Algorithm::hybridAStar(Node3D& start,
   }
 
   return nullptr;
+}
+
+void Algorithm::odomCallback(const nav_msgs::Odometry::ConstPtr& msg) 
+{
+  odom = *msg;
 }
 
 //###################################################
@@ -306,7 +360,7 @@ float aStar(Node2D& start,
 //###################################################
 //                                         COST TO GO
 //###################################################
-void updateH(Node3D& start, const Node3D& goal, Node2D* nodes2D, float* dubinsLookup, int width, int height, CollisionDetection& configurationSpace, Visualize& visualization) {
+void Algorithm::updateH(Node3D& start, const Node3D& goal, Node2D* nodes2D, float* dubinsLookup, int width, int height, CollisionDetection& configurationSpace, Visualize& visualization) {
   float dubinsCost = 0;
   float reedsSheppCost = 0;
   float twoDCost = 0;
@@ -362,7 +416,7 @@ void updateH(Node3D& start, const Node3D& goal, Node2D* nodes2D, float* dubinsLo
     //      dubins_init(q0, q1, Constants::r, &dubinsPath);
     //      dubinsCost = dubins_path_length(&dubinsPath);
 
-    ompl::base::DubinsStateSpace dubinsPath(Constants::r);
+    ompl::base::DubinsStateSpace dubinsPath(turn_radius);
     State* dbStart = (State*)dubinsPath.allocState();
     State* dbEnd = (State*)dubinsPath.allocState();
     dbStart->setXY(start.getX(), start.getY());
@@ -375,7 +429,7 @@ void updateH(Node3D& start, const Node3D& goal, Node2D* nodes2D, float* dubinsLo
   // if reversing is active use a
   if (Constants::reverse && !Constants::dubins) {
     //    ros::Time t0 = ros::Time::now();
-    ompl::base::ReedsSheppStateSpace reedsSheppPath(Constants::r);
+    ompl::base::ReedsSheppStateSpace reedsSheppPath(turn_radius);
     State* rsStart = (State*)reedsSheppPath.allocState();
     State* rsEnd = (State*)reedsSheppPath.allocState();
     rsStart->setXY(start.getX(), start.getY());
@@ -418,7 +472,7 @@ void updateH(Node3D& start, const Node3D& goal, Node2D* nodes2D, float* dubinsLo
 //###################################################
 //                                        DUBINS SHOT
 //###################################################
-Node3D* dubinsShot(Node3D& start, const Node3D& goal, CollisionDetection& configurationSpace) {
+Node3D* Algorithm::dubinsShot(Node3D& start, const Node3D& goal, CollisionDetection& configurationSpace) {
   // start
   double q0[] = { start.getX(), start.getY(), start.getT() };
   // goal
@@ -426,7 +480,7 @@ Node3D* dubinsShot(Node3D& start, const Node3D& goal, CollisionDetection& config
   // initialize the path
   DubinsPath path;
   // calculate the path
-  dubins_init(q0, q1, Constants::r, &path);
+  dubins_init(q0, q1, turn_radius, &path);
 
   int i = 0;
   float x = 0.f;
@@ -467,4 +521,16 @@ Node3D* dubinsShot(Node3D& start, const Node3D& goal, CollisionDetection& config
 
   //  std::cout << "Dubins shot connected, returning the path" << "\n";
   return &dubinsNodes[i - 1];
+}
+
+Eigen::Vector3d calcVelocity(nav_msgs::Odometry currentPosition, Node3D* predPosition)
+{
+  Eigen::Vector3d velocityRes;
+  double maxVelocity = 5;
+  double xPer = abs(currentPosition.pose.pose.position.x - predPosition->getX());
+  double yPer = abs(currentPosition.pose.pose.position.y - predPosition->getY());
+  double per = sqrt(pow(xPer, 2) + pow(yPer, 2));
+  velocityRes(0) = maxVelocity * xPer / per;
+  velocityRes(1) = maxVelocity * yPer / per;
+  velocityRes(2) = 0;
 }
