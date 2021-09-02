@@ -1,3 +1,5 @@
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #include "../include/planner.h"
 
 using namespace HybridAStar;
@@ -63,8 +65,10 @@ void Planner::setMap(const nav_msgs::OccupancyGrid::Ptr map) {
 //  ros::Time t0 = ros::Time::now();
   
   // std::cout<<"\n height:"<<height<<",width:"<<width<<std::endl;
+  int n=3;//色彩通道数
   bool** binMap;
   binMap = new bool*[mapWidth];
+  unsigned char* pictureMap = new unsigned char[mapHeight*mapWidth*n];
   std::cout<<"the map's width is:"<<mapWidth<<", height is:"<<mapHeight<<std::endl;
   for (int x = 0; x < mapWidth; x++) { binMap[x] = new bool[mapHeight]; }
 
@@ -72,9 +76,23 @@ void Planner::setMap(const nav_msgs::OccupancyGrid::Ptr map) {
     for (int y = 0; y < mapHeight; ++y) {
       binMap[x][y] = map->data[y * mapWidth + x] > 0 ? true : false;
       // std::cout<<binMap[x][y]<<" ";   
+      if(binMap[x][y])
+      {
+        pictureMap[n*(mapWidth*y+x)+0] = 0;
+        pictureMap[n*(mapWidth*y+x)+1] = 0;
+        pictureMap[n*(mapWidth*y+x)+2] = 0;
+      }
+      else
+      {
+        pictureMap[n*(mapWidth*y+x)+0] = 255;
+        pictureMap[n*(mapWidth*y+x)+1] = 255;
+        pictureMap[n*(mapWidth*y+x)+2] = 255;
+      }
     }
     // std::cout<<std::endl;
   }
+
+  stbi_write_png("/home/nanorobot/map.png", mapWidth, mapHeight, n, pictureMap, mapWidth*n);
 
   voronoiDiagram.initializeMap(mapWidth, mapHeight, binMap);
   voronoiDiagram.update();

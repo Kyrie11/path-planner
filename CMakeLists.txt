@@ -47,7 +47,7 @@ set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/dynamicvoronoi.h #Boris Lau, Christoph Sprunk, Wolfram Burgard
     ${CMAKE_CURRENT_SOURCE_DIR}/include/bucketedqueue.h #Boris Lau, Christoph Sprunk, Wolfram Burgard
     ${CMAKE_CURRENT_SOURCE_DIR}/include/point.h #Boris Lau, Christoph Sprunk, Wolfram Burgard
-
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/stb_image_write.h #Boris Lau, Christoph Sprunk, Wolfram Burgard
     )
 add_library(HYAS ${SOURCES} ${HEADERS})
 
